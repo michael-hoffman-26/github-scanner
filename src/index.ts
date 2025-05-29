@@ -1,15 +1,14 @@
-import { createApp } from './app';
+require('dotenv').config()
 import { loadRepoData } from './utils/load-data';
+import { startApolloServer } from './apollo/server';
+
+
 
 (async () => {
-    const app = createApp();
-    const PORT = process.env.PORT || 9090;
 
     await loadRepoData()
 
-    app.listen(PORT, function () {
-        console.log(`App is listening on port: ${PORT}!`);
-    });
+    startApolloServer();
 })().catch(error => {
     console.error('Failed to start the application:', error);
     process.exit(1);

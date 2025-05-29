@@ -1,4 +1,4 @@
-import { BaseError } from '../errors/baseError';
+
 
 export interface RepoDetails {
     name: string;
@@ -36,12 +36,7 @@ interface GitHubHook {
     active: boolean;
 }
 
-export class GitHubFetcherError extends BaseError {
-    constructor(message: string) {
-        super('bla', 404, message);
-        this.name = 'GitHubFetcherError';
-    }
-}
+
 
 class GitHubFetcher {
     private baseUrl = 'https://api.github.com/repos/';
@@ -61,7 +56,7 @@ class GitHubFetcher {
         });
 
         if (!response.ok) {
-            throw new GitHubFetcherError(`Failed to fetch file content: ${response.statusText}`);
+            throw new Error(`Failed to fetch file content: ${response.statusText}`);
         }
 
         const data = await response.json();
@@ -79,11 +74,12 @@ class GitHubFetcher {
             });
 
             if (!response.ok) {
-                throw new GitHubFetcherError(`Failed to fetch repo details: ${response.statusText}`);
+                throw new Error(`Failed to fetch repo details: ${response.statusText}`);
             }
 
             const data = await response.json();
             const defaultBranch = data.default_branch;
+            
 
             // Get latest commit SHA of the default branch
             const commitRes = await fetch(`https://api.github.com/repos/${repoName}/commits/${defaultBranch}`, {
@@ -91,8 +87,7 @@ class GitHubFetcher {
             });
 
             const commitData = await commitRes.json();
-            const treeSha = commitData.commit.tree.sha;
-            console.log(treeSha);
+            const treeSha = commitData.commit?.tree?.sha;
 
 
             // Fetch the full tree recursively
@@ -100,10 +95,10 @@ class GitHubFetcher {
                 headers: { 'User-Agent': 'github-scanner' },
             });
             const treeData = await treeRes.json();
-            const fileCount = treeData.tree.filter((item: GitHubTreeItem) => item.type === 'blob').length;
+            const fileCount = treeData?.tree?.filter((item: GitHubTreeItem) => item.type === 'blob').length;
 
             // Find first YAML file
-            const firstYamlFile = treeData.tree.find((item: GitHubTreeItem) =>
+            const firstYamlFile = treeData?.tree?.find((item: GitHubTreeItem) =>
                 item.type === 'blob' && item.path.endsWith('.yml')
             );
 
@@ -149,11 +144,8 @@ class GitHubFetcher {
                 yamlFile: yamlContent
             };
         } catch (error) {
-            if (error instanceof GitHubFetcherError) {
-                throw error;
-            }
             const errorMessage = (error instanceof Error) ? error.message : String(error);
-            throw new GitHubFetcherError(`Error fetching repo details: ${errorMessage}`);
+            throw new Error(`Error fetching repo details: ${errorMessage}`);
         }
     }
 }

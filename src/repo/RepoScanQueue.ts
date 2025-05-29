@@ -1,5 +1,3 @@
-// src/domain/RepoScanQueue.ts
-
 export class RepoScanQueue {
     private queue: string[];
     private inProgress: Set<string>;
