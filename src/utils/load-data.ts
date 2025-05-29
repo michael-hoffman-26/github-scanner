@@ -12,8 +12,9 @@ import { resolvers } from "../apollo/resolvers";
 export async function loadRepoData(): Promise<void> {
     const queue = new RepoScanQueue(2);
     queue.addMany([
-        'michael-hoffman-26/recipe-vault',
-        'michael-hoffman-26/node-ts-server'
+        'michael-hoffman-26/GreenridgeAppA',
+        'mhoffman-26-recipe/GreenridgeAppB',
+        'mhoffman-26-recipe/GreenridgeAppC'
     ]);
 
     while (!queue.isEmpty()) {
